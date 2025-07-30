@@ -143,6 +143,7 @@ tag_analyse/
 ├── .env                    # 环境变量配置文件
 ├── .gitignore             # Git 忽略文件配置
 ├── README.md              # 项目说明文档
+├── LICENSE                # CC BY-NC 4.0 许可证文件
 ├── requirements.txt       # Python 依赖包列表
 ├── main.py                # 主程序入口
 ├── make_cloudword.py      # 词云生成模块
@@ -213,6 +214,12 @@ A: 程序会自动处理，或手动关闭所有 Edge 进程后重试
 A: 建议使用 Python 3.12.3，如遇到兼容性问题请升级 Python 版本
 
 ## 📄 许可证
+
+本项目采用 **CC BY-NC 4.0** 协议，禁止任何形式的商业使用。
+
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+
+使用本项目产生的一切风险与后果由使用者自行承担，作者及贡献者不承担任何法律责任。
 
 本项目仅供学习和研究使用，请遵守相关法律法规和平台使用条款。
 
