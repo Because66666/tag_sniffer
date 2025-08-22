@@ -2,6 +2,7 @@ import os
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from typing import List
+import numpy as np
 
 
 def create_picture_directory():
@@ -46,15 +47,48 @@ def generate_wordcloud(processed_text: str, output_filename: str = None) -> str:
     # 获取字体路径
     font_path = get_font_path()
     
+    # 创建圆形遮罩
+    def create_circle_mask(width, height):
+        """创建圆形遮罩"""
+        mask = np.zeros((height, width), dtype=np.uint8)
+        center_x, center_y = width // 2, height // 2
+        radius = min(center_x, center_y) - 10
+        
+        y, x = np.ogrid[:height, :width]
+        mask_condition = (x - center_x) ** 2 + (y - center_y) ** 2 > radius ** 2
+        mask[mask_condition] = 255
+        return mask
+    
     # 生成词云
     print("正在生成词云...")
+    width, height = 1200, 1200  # 使用正方形画布以适配圆形
+    circle_mask = create_circle_mask(width, height)
+    
+    # 自定义蓝色渐变颜色函数
+    def blue_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        """蓝色渐变颜色函数：深蓝到浅蓝"""
+        # 根据字体大小决定颜色深浅，字体越大颜色越深
+        max_font_size = 100  # 假设最大字体大小
+        intensity = min(font_size / max_font_size, 1.0)
+        
+        # 深蓝色 RGB(0, 51, 102) 到 浅蓝色 RGB(173, 216, 230)
+        r = int(173 - 173 * intensity)
+        g = int(216 - 165 * intensity) 
+        b = int(230 - 128 * intensity)
+        
+        return f"rgb({r},{g},{b})"
+    
     wordcloud_config = {
-        'width': 1200,
-        'height': 800,
+        'width': width,
+        'height': height,
         'background_color': 'white',
         'max_words': 200,
         'relative_scaling': 0.5,
-        'colormap': 'viridis'
+        'mask': circle_mask,
+        'prefer_horizontal': 0.9,  # 优先水平排列
+        'min_font_size': 10,
+        'max_font_size': 100,
+        'color_func': blue_color_func
     }
     
     # 如果有字体文件，使用中文字体

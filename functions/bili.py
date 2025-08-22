@@ -119,7 +119,7 @@ class BilibiliNetworkCapture:
             if self.target_url_pattern in response.url:
                 try:
                     response_text = response.text()
-                    print(f"捕获到API响应: {response.url}")
+                    # print(f"捕获到API响应: {response.url}")
                     self.captured_responses.append(response_text)
                     print(f"已捕获 {len(self.captured_responses)}/{self.max_captures} 个响应")
                 except Exception as e:
@@ -158,8 +158,8 @@ class BilibiliNetworkCapture:
 
 def parse_html_to_tag(html:str) -> list[str]:
     parsed_html = BeautifulSoup(html,'lxml')
-    divs = parsed_html.find_all('div',attrs={'class':'ordinary-tag'})
-    tags = [div.text.replace('\n','')  for div in divs]
+    keywords = parsed_html.find('meta',attrs={'name':'keywords'})['content']
+    tags = keywords.split(',')[1:-4]
     return tags
 
 
@@ -246,4 +246,10 @@ def preprocess_text(text: str) -> str:
     print(f"词汇数量: {len(filtered_words)}")
     
     return result_text
+
+if __name__ == '__main__':
+    with open(r'D:\python\tag_analyse\functions\1.html','r',encoding='utf-8') as f:
+        html = f.read()
+    tags = parse_html_to_tag(html)
+    print(tags)
 
