@@ -68,8 +68,8 @@ def generate_wordcloud(processed_text: str, output_filename: str = None) -> str:
     def blue_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
         """蓝色渐变颜色函数：深蓝到浅蓝"""
         # 根据字体大小决定颜色深浅，字体越大颜色越深
-        max_font_size = 100  # 假设最大字体大小
-        intensity = min(font_size / max_font_size, 1.0)
+        # 动态计算强度，不设置固定的最大字体大小限制
+        intensity = min(font_size / 200.0, 1.0)  # 使用相对比例计算
         
         # 深蓝色 RGB(0, 51, 102) 到 浅蓝色 RGB(173, 216, 230)
         r = int(173 - 173 * intensity)
@@ -87,7 +87,6 @@ def generate_wordcloud(processed_text: str, output_filename: str = None) -> str:
         'mask': circle_mask,
         'prefer_horizontal': 0.9,  # 优先水平排列
         'min_font_size': 10,
-        'max_font_size': 100,
         'color_func': blue_color_func
     }
     

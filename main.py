@@ -221,7 +221,6 @@ def main():
                     # 从JSON响应中提取文本
                     print("\n📝 正在从JSON响应中提取文本标签...")
                     text_content = extract_text_from_json_responses(captured_responses)
-                    
                     if text_content.strip():
                         # 预处理文本
                         print("🔧 正在预处理文本...")
