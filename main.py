@@ -3,7 +3,7 @@ import os
 import subprocess
 import time
 from dotenv import load_dotenv
-from functions.bili import BilibiliNetworkCapture, extract_text_from_json_responses, preprocess_text
+from functions.bili import BilibiliNetworkCapture, extract_text_from_json_responses
 from make_cloudword import generate_wordcloud
 
 # 加载环境变量
@@ -222,10 +222,7 @@ def main():
                     print("\n📝 正在从JSON响应中提取文本标签...")
                     text_content = extract_text_from_json_responses(captured_responses)
                     if text_content.strip():
-                        # 预处理文本
-                        print("🔧 正在预处理文本...")
-                        processed_text = preprocess_text(text_content)
-                        
+                        processed_text = text_content
                         if processed_text.strip():
                             # 生成词云
                             print("\n🎨 开始生成词云图片...")

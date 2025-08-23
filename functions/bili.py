@@ -23,7 +23,7 @@ class BilibiliNetworkCapture:
         self.page = page
         self.captured_responses = []
         self.target_url_pattern = "https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?web_location"
-        self.max_captures = 10
+        self.max_captures = 20
         
     async def setup_network_listener(self):
         """设置网络请求监听器"""
@@ -210,42 +210,6 @@ def extract_text_from_json_responses(json_responses: List[str]) -> str:
     
     return combined_text
 
-
-def preprocess_text(text: str) -> str:
-    """
-    预处理文本，进行分词和清理
-    
-    Args:
-        text: 原始文本
-        
-    Returns:
-        str: 处理后的文本
-    """
-    # 使用jieba进行中文分词
-    words = jieba.cut(text)
-    
-    # 过滤词汇
-    filtered_words = []
-    for word in words:
-        word = word.strip()
-        # 过滤条件：长度大于1，不是纯数字，不是标点符号
-        if (len(word) > 1 and 
-            not word.isdigit() and 
-            not re.match(r'^[^\w\s]+$', word) and
-            word not in ['的', '了', '在', '是', '有', '和', '就', '不', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '还', '把', '那', '这', '来', '很', '从', '被', '让', '给', '对', '向', '以', '所', '为', '而', '也', '都', '能', '下', '自己', '什么', '怎么', '可以', '如果', '因为', '所以', '但是', '然后', '现在', '已经', '一个', '这个', '那个', '我们', '他们', '她们', '它们']):
-            filtered_words.append(word)
-    
-    # 统计词频，只保留出现频率较高的词
-    word_freq = Counter(filtered_words)
-    # 只保留出现次数大于1的词，或者总词数少于100时保留所有词
-    if len(word_freq) > 100:
-        filtered_words = [word for word, freq in word_freq.items() if freq > 1]
-    
-    result_text = ' '.join(filtered_words)
-    print(f"分词后的文本长度: {len(result_text)} 字符")
-    print(f"词汇数量: {len(filtered_words)}")
-    
-    return result_text
 
 if __name__ == '__main__':
     with open(r'D:\python\tag_analyse\functions\1.html','r',encoding='utf-8') as f:
