@@ -253,6 +253,63 @@ def main():
                     print("   2. 尝试手动滚动页面")
                     print("   3. 检查网络连接")
             
+            # 检查是否是小红书网站，如果是则进行网络监听和数据收集
+            elif 'xiaohongshu.com' in target_url:
+                print("\n🎯 检测到小红书网站，开始进行网络监听和数据收集...")
+                
+                # 创建小红书网络捕获器
+                network_capture = XiaohongshuNetworkCapture(page)
+                
+                print("📡 开始监听网络请求并收集推荐内容数据...")
+                print("程序将自动点击页面上的section元素并收集API响应")
+                print("目标：收集220个包含推荐内容信息的网络响应")
+                
+                # 开始捕获网络请求
+                captured_responses = network_capture.start_capture()
+                
+                if captured_responses:
+                    print(f"\n✅ 数据收集完成！共收集到 {len(captured_responses)} 个API响应")
+                    
+                    # 从JSON响应中提取标签
+                    print("\n📝 正在从JSON响应中提取标签...")
+                    tags = extract_tags_from_json_responses(captured_responses)
+                    
+                    if tags:
+                        print(f"\n✅ 成功提取到 {len(tags)} 个标签")
+                        
+                        # 将所有标签合并为文本
+                        combined_text = ' '.join(tags)
+                        
+                        if combined_text.strip():
+                            # 生成词云
+                            print("\n🎨 开始生成词云图片...")
+                            wordcloud_path = generate_wordcloud(combined_text)
+                            
+                            if wordcloud_path:
+                                print(f"🎉 词云生成成功！")
+                                print(f"📁 图片保存位置: {wordcloud_path}")
+                                
+                                # 询问用户是否要打开图片
+                                try:
+                                    choice = input("\n是否要打开生成的词云图片？(y/n): ").strip().lower()
+                                    if choice in ['y', 'yes', '是']:
+                                        os.startfile(wordcloud_path)  # Windows系统打开文件
+                                except:
+                                    pass
+                            else:
+                                print("❌ 词云生成失败")
+                        else:
+                            print("❌ 合并后的文本内容为空")
+                    else:
+                        print("❌ 没有从JSON响应中提取到有效的标签")
+                else:
+                    print("❌ 没有收集到有效的网络响应数据")
+                    print("💡 建议：")
+                    print("   1. 确保页面已完全加载")
+                    print("   2. 检查网络连接")
+                    print("   3. 确认小红书推荐页面正常显示")
+                    print("   4. 确保页面上有可点击的section元素")
+            
             # 检查是否是抖音网站，如果是则进行网络监听和数据收集
             elif 'douyin.com' in target_url:
                 print("\n🎯 检测到抖音网站，开始进行网络监听和数据收集...")

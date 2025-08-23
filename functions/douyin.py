@@ -29,7 +29,7 @@ class DouyinNetworkCapture:
         """设置网络请求监听器"""
         async def handle_response(response):
             # 检查响应URL是否包含目标模式
-            if self.target_url_pattern in response.url:
+            if self.target_url_pattern in response.url and response.request.method.upper() != 'OPTIONS':
                 try:
                     # 获取响应内容
                     response_text = await response.text()
