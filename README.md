@@ -6,6 +6,7 @@ Tag Sniffer 是一个基于 Python 的多平台标签分析与词云生成工具
 
 目前支持的平台：
 - 🎬 **Bilibili** - 推荐视频标签分析
+- 🎬 **抖音** - 推荐视频标签分析
 - 🔄 **更多平台** - 持续开发中...
 
 ## ✨ 主要功能
@@ -103,13 +104,24 @@ TARGET_URL=https://www.bilibili.com
 
 ## 🚀 使用方法
 
-### 基本使用（以 Bilibili 为例）
+### 基本使用
+
+#### Bilibili 平台分析
 
 1. **配置环境变量**：
    ```bash
    # 编辑 .env 文件，设置浏览器类型和目标URL
    BROWSER_TYPE=edge
    TARGET_URL=https://www.bilibili.com
+   ```
+
+#### 抖音平台分析
+
+1. **配置环境变量**：
+   ```bash
+   # 编辑 .env 文件，设置浏览器类型和目标URL
+   BROWSER_TYPE=edge
+   TARGET_URL=https://www.douyin.com/?recommend=1
    ```
 
 2. **运行主程序**：
@@ -133,8 +145,10 @@ python make_cloudword.py
 ```
 
 #### 自定义配置
-- 修改 `functions/bili.py` 中的 `max_captures` 参数调整收集的数据量
+- 修改 `functions/bili.py` 中的 `max_captures` 参数调整 Bilibili 数据收集量
+- 修改 `functions/douyin.py` 中的 `max_captures` 参数调整抖音数据收集量（默认目标220个caption）
 - 修改 `make_cloudword.py` 中的词云配置参数调整生成效果
+- 抖音平台支持多种滚动方式，如遇滚动问题会自动切换方法
 
 ## 📁 项目结构
 
@@ -149,7 +163,8 @@ tag_analyse/
 ├── make_cloudword.py      # 词云生成模块
 ├── close_edge.py          # Edge 浏览器进程管理
 ├── functions/             # 功能模块目录
-│   └── bili.py           # Bilibili 数据收集和处理模块
+│   ├── bili.py           # Bilibili 数据收集和处理模块
+│   └── douyin.py         # 抖音数据收集和处理模块
 ├── fonts/                 # 字体文件目录
 │   └── zh-cn.ttf         # 中文字体文件
 └── picture/              # 生成的词云图片存储目录
@@ -167,6 +182,11 @@ tag_analyse/
 - `BilibiliNetworkCapture` 类：Bilibili 平台的网络请求监听和数据收集
 - `extract_text_from_json_responses()` 函数：从 JSON 响应中提取文本内容
 - `preprocess_text()` 函数：中文文本预处理和分词
+
+### functions/douyin.py
+- `DouyinNetworkCapture` 类：抖音平台的网络请求监听和数据收集
+- `extract_captions_from_json_responses()` 函数：从抖音 JSON 响应中提取 caption 字段
+- 支持多种滚动方式：键盘事件、鼠标滚轮、DOM 操作等
 
 ### make_cloudword.py
 - `generate_wordcloud()` 函数：词云图片生成
