@@ -1,9 +1,10 @@
+from re import I
 from playwright.sync_api import (sync_playwright)
 import os
 import subprocess
 import time
 from dotenv import load_dotenv
-from functions.bili import BilibiliNetworkCapture, extract_text_from_json_responses
+from functions import *
 from make_cloudword import generate_wordcloud
 
 # 加载环境变量
@@ -251,6 +252,63 @@ def main():
                     print("   1. 确保页面已完全加载")
                     print("   2. 尝试手动滚动页面")
                     print("   3. 检查网络连接")
+            
+            # 检查是否是抖音网站，如果是则进行网络监听和数据收集
+            elif 'douyin.com' in target_url:
+                print("\n🎯 检测到抖音网站，开始进行网络监听和数据收集...")
+                
+                # 创建抖音网络捕获器
+                network_capture = DouyinNetworkCapture(page)
+                
+                print("📡 开始监听网络请求并收集推荐视频数据...")
+                print("请在浏览器中滚动页面，程序将自动收集推荐视频的API响应")
+                print("目标：收集220个caption字符串")
+                
+                # 开始捕获网络请求
+                captured_responses = network_capture.start_capture()
+                
+                if captured_responses:
+                    print(f"\n✅ 数据收集完成！共收集到 {len(captured_responses)} 个API响应")
+                    
+                    # 从JSON响应中提取caption
+                    print("\n📝 正在从JSON响应中提取caption字段...")
+                    captions = extract_captions_from_json_responses(captured_responses)
+                    
+                    if captions:
+                        print(f"\n✅ 成功提取到 {len(captions)} 个caption")
+                        
+                        # 将所有caption合并为文本
+                        combined_text = ' '.join(captions)
+                        
+                        if combined_text.strip():
+                            # 生成词云
+                            print("\n🎨 开始生成词云图片...")
+                            wordcloud_path = generate_wordcloud(combined_text)
+                            
+                            if wordcloud_path:
+                                print(f"🎉 词云生成成功！")
+                                print(f"📁 图片保存位置: {wordcloud_path}")
+                                
+                                # 询问用户是否要打开图片
+                                try:
+                                    choice = input("\n是否要打开生成的词云图片？(y/n): ").strip().lower()
+                                    if choice in ['y', 'yes', '是']:
+                                        os.startfile(wordcloud_path)  # Windows系统打开文件
+                                except:
+                                    pass
+                            else:
+                                print("❌ 词云生成失败")
+                        else:
+                            print("❌ 合并后的文本内容为空")
+                    else:
+                        print("❌ 没有从JSON响应中提取到有效的caption")
+                else:
+                    print("❌ 没有收集到有效的网络响应数据")
+                    print("💡 建议：")
+                    print("   1. 确保页面已完全加载")
+                    print("   2. 尝试手动滚动页面")
+                    print("   3. 检查网络连接")
+                    print("   4. 确认抖音推荐页面正常显示")
             
 
         except Exception as e:
