@@ -7,6 +7,8 @@ Tag Sniffer 是一个基于 Python 的多平台标签分析与词云生成工具
 目前支持的平台：
 - 🎬 **Bilibili** - 推荐视频标签分析
 - 🎬 **抖音** - 推荐视频标签分析
+- 🧠 **知乎** - 推荐内容标签分析
+- 📸 **小红书** - 推荐内容标签分析
 - 🔄 **更多平台** - 持续开发中...
 
 ## ✨ 主要功能
@@ -31,6 +33,7 @@ Tag Sniffer 是一个基于 Python 的多平台标签分析与词云生成工具
 - **BeautifulSoup4** - HTML 解析
 - **requests** - HTTP 请求
 - **tqdm** - 进度条显示
+- **lxml** - XML/HTML 解析器
 
 ## 📦 安装依赖
 
@@ -61,7 +64,7 @@ pip install -r requirements.txt
 
 #### 方法二：手动安装
 ```bash
-pip install playwright wordcloud jieba matplotlib beautifulsoup4 requests tqdm python-dotenv
+pip install playwright wordcloud jieba matplotlib beautifulsoup4 requests tqdm python-dotenv lxml numpy
 ```
 
 ### 4. 安装 Playwright 浏览器
@@ -73,14 +76,16 @@ playwright install
 
 | 包名 | 版本 | 用途 |
 |------|------|------|
-| playwright | 1.50.0 | 浏览器自动化控制 |
-| wordcloud | 1.9.4 | 词云图片生成 |
-| jieba | 0.42.1 | 中文分词处理 |
-| matplotlib | 3.8.4 | 图像绘制和保存 |
-| beautifulsoup4 | 4.12.3 | HTML 解析 |
-| requests | 2.31.0 | HTTP 请求处理 |
-| tqdm | 4.66.4 | 进度条显示 |
-| python-dotenv | 1.0.1 | 环境变量管理 |
+| playwright | 1.50.0 | 浏览器自动化控制，网络请求监听 |
+| wordcloud | 1.9.4 | 词云图片生成和可视化 |
+| jieba | 0.42.1 | 中文分词处理（代码中已导入但未直接使用） |
+| matplotlib | 3.8.4 | 图像绘制、保存和显示 |
+| beautifulsoup4 | 4.12.3 | HTML页面解析，提取标签信息 |
+| requests | 2.32.3 | HTTP请求处理，访问推荐链接 |
+| tqdm | 4.67.1 | 进度条显示，URL访问进度跟踪 |
+| python-dotenv | 1.0.1 | 环境变量管理，配置浏览器类型和目标URL |
+| lxml | 5.2.1 | XML/HTML解析器，BeautifulSoup的后端 |
+| numpy | >=1.21.0 | 数值计算，词云遮罩生成 |
 
 ## ⚙️ 配置说明
 
@@ -124,6 +129,24 @@ TARGET_URL=https://www.bilibili.com
    TARGET_URL=https://www.douyin.com/?recommend=1
    ```
 
+#### 知乎平台分析
+
+1. **配置环境变量**：
+   ```bash
+   # 编辑 .env 文件，设置浏览器类型和目标URL
+   BROWSER_TYPE=edge
+   TARGET_URL=https://www.zhihu.com
+   ```
+
+#### 小红书平台分析
+
+1. **配置环境变量**：
+   ```bash
+   # 编辑 .env 文件，设置浏览器类型和目标URL
+   BROWSER_TYPE=edge
+   TARGET_URL=https://www.xiaohongshu.com
+   ```
+
 2. **运行主程序**：
    ```bash
    python main.py
@@ -147,8 +170,12 @@ python make_cloudword.py
 #### 自定义配置
 - 修改 `functions/bili.py` 中的 `max_captures` 参数调整 Bilibili 数据收集量
 - 修改 `functions/douyin.py` 中的 `max_captures` 参数调整抖音数据收集量（默认目标220个caption）
+- 修改 `functions/zhihu.py` 中的 `target_count` 参数调整知乎数据收集量（默认目标40个响应）
+- 修改 `functions/xiaohongshu.py` 中的 `target_count` 参数调整小红书数据收集量
 - 修改 `make_cloudword.py` 中的词云配置参数调整生成效果
 - 抖音平台支持多种滚动方式，如遇滚动问题会自动切换方法
+- 知乎平台使用Playwright页面导航，无需手动处理cookies
+- 小红书平台支持网络请求监听和标签提取
 
 ## 📁 项目结构
 
@@ -164,7 +191,9 @@ tag_analyse/
 ├── close_edge.py          # Edge 浏览器进程管理
 ├── functions/             # 功能模块目录
 │   ├── bili.py           # Bilibili 数据收集和处理模块
-│   └── douyin.py         # 抖音数据收集和处理模块
+│   ├── douyin.py         # 抖音数据收集和处理模块
+│   ├── xiaohongshu.py    # 小红书数据收集和处理模块
+│   └── zhihu.py          # 知乎数据收集和处理模块
 ├── fonts/                 # 字体文件目录
 │   └── zh-cn.ttf         # 中文字体文件
 └── picture/              # 生成的词云图片存储目录
@@ -187,6 +216,17 @@ tag_analyse/
 - `DouyinNetworkCapture` 类：抖音平台的网络请求监听和数据收集
 - `extract_captions_from_json_responses()` 函数：从抖音 JSON 响应中提取 caption 字段
 - 支持多种滚动方式：键盘事件、鼠标滚轮、DOM 操作等
+
+### functions/zhihu.py
+- `ZhihuNetworkCapture` 类：知乎平台的网络请求监听和数据收集
+- `extract_tags_from_responses()` 方法：从知乎推荐API响应中提取标签内容
+- `parse_zhihu_html_to_tag()` 函数：从知乎HTML页面中解析话题标签
+- 使用Playwright页面导航，自动保持登录状态
+
+### functions/xiaohongshu.py
+- `XiaohongshuNetworkCapture` 类：小红书平台的网络请求监听和数据收集
+- `extract_tags_from_json_responses()` 函数：从小红书JSON响应中提取标签内容
+- 支持小红书推荐内容的标签分析和数据处理
 
 ### make_cloudword.py
 - `generate_wordcloud()` 函数：词云图片生成
