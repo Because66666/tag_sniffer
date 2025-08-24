@@ -84,26 +84,6 @@ class BilibiliNetworkCapture:
         print(f"滚动完成，共收集到 {len(self.captured_responses)} 个响应")
         return self.captured_responses.copy()
     
-    def capture_network_requests(self) -> List[str]:
-        """
-        同步方法：捕获网络请求
-        
-        Returns:
-            List[str]: 收集到的JSON响应字符串列表
-        """
-        async def async_capture():
-            await self.setup_network_listener()
-            return await self.scroll_and_collect()
-        
-        # 在页面的上下文中运行异步函数
-        return self.page.evaluate("""
-            async () => {
-                // 这里我们使用同步的方式来处理
-                return new Promise((resolve) => {
-                    setTimeout(() => resolve([]), 1000);
-                });
-            }
-        """)
     
     def start_capture(self) -> List[str]:
         """
